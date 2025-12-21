@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Kombin uygulaması fotoğraf çekmek için kameraya ihtiyaç duyar.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Kıyafet görsellerini seçmek için fotoğraf kütüphanesine erişim gerekir.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Çekilen veya seçilen görselleri kaydetmek için fotoğraf kütüphanesine yazma izni gerekir.</string>
 </dict>
 </plist>
