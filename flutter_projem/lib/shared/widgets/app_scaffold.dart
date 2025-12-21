@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter/material.dart';
 
 class AppScaffold extends StatelessWidget {
   const AppScaffold({
