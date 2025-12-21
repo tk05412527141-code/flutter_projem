@@ -6,7 +6,6 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../core/storage/image_storage.dart';
 import '../../../core/utils/validators.dart';
-import '../../auth/data/auth_repository.dart';
 import '../data/wardrobe_repository.dart';
 
 class AddClothPage extends ConsumerStatefulWidget {
@@ -80,7 +79,7 @@ class _AddClothPageState extends ConsumerState<AddClothPage> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<ClothCategory>(
-                value: _category,
+                initialValue: _category,
                 decoration: const InputDecoration(labelText: 'Kategori'),
                 items: const [
                   DropdownMenuItem(
@@ -114,7 +113,7 @@ class _AddClothPageState extends ConsumerState<AddClothPage> {
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<Season>(
-                value: _season,
+                initialValue: _season,
                 decoration: const InputDecoration(labelText: 'Sezon'),
                 items: const [
                   DropdownMenuItem(value: Season.summer, child: Text('Yaz')),

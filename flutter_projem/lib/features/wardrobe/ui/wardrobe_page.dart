@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../auth/data/auth_repository.dart';
 import '../data/wardrobe_repository.dart';
 import 'add_cloth_page.dart';
 import 'cloth_detail_page.dart';

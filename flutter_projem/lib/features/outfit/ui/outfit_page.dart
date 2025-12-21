@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../auth/data/auth_repository.dart';
 import '../../wardrobe/data/wardrobe_repository.dart';
 import '../data/outfit_repository.dart';
 import '../data/outfit_service.dart';
@@ -76,7 +75,7 @@ class _OutfitPageState extends ConsumerState<OutfitPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       DropdownButtonFormField<Season>(
-                        value: _season,
+                        initialValue: _season,
                         decoration: const InputDecoration(labelText: 'Sezon'),
                         items: const [
                           DropdownMenuItem(

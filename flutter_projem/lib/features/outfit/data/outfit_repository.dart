@@ -3,7 +3,6 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../wardrobe/data/wardrobe_repository.dart';
-import '../../auth/data/auth_repository.dart';
 
 class Outfit {
   Outfit({
