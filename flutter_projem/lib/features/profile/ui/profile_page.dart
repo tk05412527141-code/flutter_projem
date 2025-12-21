@@ -1,33 +1,39 @@
-import '../../auth/data/auth_repository.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:flutter_projem/features/auth/data/auth_repository.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(currentUserProvider);
+    final session = ref.watch(sessionControllerProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Profil')),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Hesap',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text('Email: ${user?.email ?? '-'}'),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                ref.read(sessionControllerProvider.notifier).logout();
-              },
-              child: const Text('Çıkış Yap'),
-            ),
-          ],
+        child: session.when(
+          data: (user) => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                user?.email ?? 'Giriş yapılmadı',
+                style: const TextStyle(fontSize: 18),
+              ),
+              const Spacer(),
+              ElevatedButton.icon(
+                onPressed: () {
+                  ref.read(sessionControllerProvider.notifier).logout();
+                },
+                icon: const Icon(Icons.logout),
+                label: const Text('Çıkış yap'),
+              ),
+            ],
+          ),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (e, _) => Center(child: Text('Hata: $e')),
         ),
       ),
     );
