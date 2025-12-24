@@ -5,8 +5,16 @@ import '../../features/wardrobe/data/wardrobe_repository.dart';
 class ClothGridCard extends StatelessWidget {
   final Cloth cloth;
   final VoidCallback onTap;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
 
-  const ClothGridCard({super.key, required this.cloth, required this.onTap});
+  const ClothGridCard({
+    super.key,
+    required this.cloth,
+    required this.onTap,
+    this.onEdit,
+    this.onDelete,
+  });
 
   String _cat(ClothCategory c) => switch (c) {
         ClothCategory.top => "Üst",
@@ -25,6 +33,7 @@ class ClothGridCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final hasMenu = (onEdit != null) || (onDelete != null);
 
     return InkWell(
       borderRadius: BorderRadius.circular(18),
@@ -35,23 +44,67 @@ class ClothGridCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Görsel alanı + sağ üst menü
               Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: Container(
-                    width: double.infinity,
-                    color: scheme.surface,
-                    child: (cloth.imagePath == null || cloth.imagePath!.isEmpty)
-                        ? const Center(child: Icon(Icons.image_rounded))
-                        : Image.file(
-                            File(cloth.imagePath!),
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) =>
-                                const Center(child: Icon(Icons.broken_image_rounded)),
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Container(
+                        width: double.infinity,
+                        color: scheme.surface,
+                        child: (cloth.imagePath == null || cloth.imagePath!.isEmpty)
+                            ? const Center(child: Icon(Icons.image_rounded))
+                            : Image.file(
+                                File(cloth.imagePath!),
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) =>
+                                    const Center(child: Icon(Icons.broken_image_rounded)),
+                              ),
+                      ),
+                    ),
+
+                    if (hasMenu)
+                      Positioned(
+                        top: 6,
+                        right: 6,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: scheme.surface.withOpacity(0.85),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: PopupMenuButton<String>(
+                              tooltip: 'İşlemler',
+                              onSelected: (value) {
+                                if (value == 'edit') onEdit?.call();
+                                if (value == 'delete') onDelete?.call();
+                              },
+                              itemBuilder: (context) => [
+                                if (onEdit != null)
+                                  const PopupMenuItem(
+                                    value: 'edit',
+                                    child: Text('Düzenle'),
+                                  ),
+                                if (onDelete != null)
+                                  PopupMenuItem(
+                                    value: 'delete',
+                                    child: Text(
+                                      'Sil',
+                                      style: TextStyle(color: scheme.error),
+                                    ),
+                                  ),
+                              ],
+                              icon: const Icon(Icons.more_vert),
+                            ),
                           ),
-                  ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
+
               const SizedBox(height: 10),
               Text(
                 cloth.name,
