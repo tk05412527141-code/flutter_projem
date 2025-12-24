@@ -21,10 +21,10 @@ class AppScaffold extends StatelessWidget {
         selectedIndex: currentIndex,
         onDestinationSelected: onIndexChanged,
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.checkroom), label: 'Gardırop'),
-          NavigationDestination(icon: Icon(Icons.auto_awesome), label: 'Kombin'),
-          NavigationDestination(icon: Icon(Icons.history), label: 'Geçmiş'),
-          NavigationDestination(icon: Icon(Icons.person), label: 'Profil'),
+          NavigationDestination(icon: Icon(Icons.checkroom), label: 'Garobum'),
+          NavigationDestination(icon: Icon(Icons.auto_awesome), label: 'Kombinim'),
+          NavigationDestination(icon: Icon(Icons.history), label: 'Geçmişim'),
+          NavigationDestination(icon: Icon(Icons.person), label: 'Profilim'),
         ],
       ),
     );
