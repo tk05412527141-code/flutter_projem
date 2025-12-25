@@ -1,55 +1,76 @@
 import 'dart:math';
-import 'package:flutter_projem/features/wardrobe/data/wardrobe_repository.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-// Kendi projenizdeki Cloth model yoluna göre gerekirse burayı düzeltin:
 
-// 1. KRİTİK DÜZELTME: Provider'ı global olarak tanımlıyoruz. 
-// OutfitPage bu ismi buradan okuyacak.
-final outfitServiceProvider = Provider<SmartOutfitEngine>((ref) {
-  return SmartOutfitEngine();
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../wardrobe/data/wardrobe_repository.dart';
+
+final outfitServiceProvider = Provider<OutfitService>((ref) {
+  return OutfitService(Random());
 });
 
-class SmartOutfitEngine {
-  final Random _random = Random();
+class OutfitService {
+  OutfitService(this._random);
 
-  // 2. ZEKA KATMANI: Sıcaklık parametresi eklendi
-  List<Cloth> generateSmartOutfit({
-    required List<Cloth> allClothes,
-    required double temperature,
-  }) {
-    // Sıcaklığa göre mevsim belirleme zekası
-    String recommendedSeason;
-    if (temperature < 15) {
-      recommendedSeason = 'Winter'; // Kışlık
-    } else if (temperature > 25) {
-      recommendedSeason = 'Summer'; // Yazlık
-    } else {
-      recommendedSeason = 'All';    // Mevsimsiz/Bahar
+  final Random _random;
+
+  List<Cloth> _filterBySeason(List<Cloth> items, Season season) {
+    return items.where((cloth) {
+      if (season == Season.all) return true;
+      if (cloth.season == Season.all) return true;
+      return cloth.season == season;
+    }).toList();
+  }
+
+  Cloth? _pickRandom(List<Cloth> items) {
+    if (items.isEmpty) return null;
+    return items[_random.nextInt(items.length)];
+  }
+
+  Cloth? _pickShoes(String? topColor, List<Cloth> shoes) {
+    if (topColor == null) return _pickRandom(shoes);
+    final lower = topColor.toLowerCase();
+    List<Cloth> filtered = shoes;
+    if (lower.contains('siyah')) {
+      filtered = shoes.where((c) {
+        final color = c.color?.toLowerCase() ?? '';
+        return color.contains('siyah') || color.contains('beyaz');
+      }).toList();
+    } else if (lower.contains('beyaz')) {
+      filtered = shoes;
+    }
+    if (filtered.isEmpty) {
+      return _pickRandom(shoes);
+    }
+    return _pickRandom(filtered);
+  }
+
+  Map<String, Cloth>? createOutfit(
+      {required List<Cloth> items, required Season season}) {
+    final tops = _filterBySeason(
+        items.where((c) => c.category == ClothCategory.top).toList(), season);
+    final bottoms = _filterBySeason(
+        items.where((c) => c.category == ClothCategory.bottom).toList(),
+        season);
+    final shoes = _filterBySeason(
+        items.where((c) => c.category == ClothCategory.shoes).toList(),
+        season);
+
+    if (tops.isEmpty || bottoms.isEmpty || shoes.isEmpty) {
+      return null;
     }
 
-    // Filtreleme: Mevsime uygun olanları seç
-    final suitableClothes = allClothes.where((c) => 
-      // ignore: unrelated_type_equality_checks
-      c.season == recommendedSeason || c.season == 'All'
-    ).toList();
+    final Cloth? top = _pickRandom(tops);
+    final Cloth? bottom = _pickRandom(bottoms);
+    final Cloth? shoe = _pickShoes(top?.color, shoes);
 
-    if (suitableClothes.isEmpty) return [];
+    if (top == null || bottom == null || shoe == null) return null;
 
-    // Kategorilere ayır
-    // ignore: unrelated_type_equality_checks
-    final tops = suitableClothes.where((c) => c.category == 'top').toList();
-    // ignore: unrelated_type_equality_checks
-    final bottoms = suitableClothes.where((c) => c.category == 'bottom').toList();
-    // ignore: unrelated_type_equality_checks
-    final shoes = suitableClothes.where((c) => c.category == 'shoes').toList();
-
-    if (tops.isEmpty || bottoms.isEmpty || shoes.isEmpty) return [];
-
-    // Rastgele ama kategorize edilmiş seçim
-    return [
-      tops[_random.nextInt(tops.length)],
-      bottoms[_random.nextInt(bottoms.length)],
-      shoes[_random.nextInt(shoes.length)],
-    ];
+    return {
+      'top': top,
+      'bottom': bottom,
+      'shoes': shoe,
+    };
   }
+
+  generateSmartOutfit({required List<Cloth> allClothes, required double temperature}) {}
 }

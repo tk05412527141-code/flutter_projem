@@ -5,8 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../wardrobe/data/wardrobe_repository.dart';
 import '../data/outfit_repository.dart';
 import '../data/outfit_service.dart';
-// Buraya currentUserProvider'ın tanımlı olduğu dosyayı eklemelisin:
-// import '../../auth/data/auth_repository.dart'; 
 
 class OutfitPage extends ConsumerStatefulWidget {
   const OutfitPage({super.key});
@@ -24,7 +22,6 @@ class _OutfitPageState extends ConsumerState<OutfitPage> {
   Future<void> _generate(List<Cloth> items) async {
     final service = ref.read(outfitServiceProvider);
     
-    // Servis metodu çağrılıyor
     final created = service.generateSmartOutfit(
       allClothes: items, 
       temperature: 20.0 
@@ -41,16 +38,11 @@ class _OutfitPageState extends ConsumerState<OutfitPage> {
   }
 
   Future<void> _save(List<Cloth> outfit) async {
-    // currentUserProvider'ın varlığından emin olmalısın
-    // final user = ref.read(currentUserProvider);
-    const String userId = "1"; // Şimdilik test için statik
-
     setState(() => _isSaving = true);
     try {
       final repo = ref.read(outfitRepositoryProvider);
-      
       await repo.saveOutfit(
-        userId: userId,
+        userId: "1", 
         top: outfit[0],
         bottom: outfit[1],
         shoes: outfit[2],
@@ -66,12 +58,10 @@ class _OutfitPageState extends ConsumerState<OutfitPage> {
   @override
   Widget build(BuildContext context) {
     final wardrobeRepo = ref.watch(wardrobeRepositoryProvider);
-    // final user = ref.watch(currentUserProvider); // Kullanıcıyı izle
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Akıllı Kombin Oluştur')),
+      appBar: AppBar(title: const Text('Kombin Oluştur'), centerTitle: true),
       body: FutureBuilder<List<Cloth>>(
-        // KRİTİK DÜZELTME: getAllClothes yerine getClothes kullanıldı ve ID verildi
         future: wardrobeRepo.getClothes("1"), 
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -81,21 +71,19 @@ class _OutfitPageState extends ConsumerState<OutfitPage> {
           final items = snapshot.data ?? [];
           
           if (items.isEmpty) {
-            return const Center(
-              child: Text('Kombin için önce kıyafet ekleyin'),
-            );
+            return const Center(child: Text('Önce kıyafet eklemelisiniz'));
           }
 
           return Padding(
             padding: const EdgeInsets.all(16),
-            child: SingleChildScrollView( // Taşmaları önlemek için eklendi
+            child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   DropdownButtonFormField<String>(
                     initialValue: _season,
                     decoration: const InputDecoration(
-                      labelText: 'Mevsim Filtresi',
+                      labelText: 'Mevsim Seçimi',
                       border: OutlineInputBorder(),
                     ),
                     items: const [
@@ -105,30 +93,35 @@ class _OutfitPageState extends ConsumerState<OutfitPage> {
                     ],
                     onChanged: (value) => setState(() => _season = value!),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
+                  
                   SizedBox(
                     width: double.infinity,
                     height: 50,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))
-                      ),
+                    child: ElevatedButton.icon(
                       onPressed: _isSaving ? null : () => _generate(items),
-                      child: Text(_isSaving ? 'Kaydediliyor...' : 'Kombin Oluştur'),
+                      icon: const Icon(Icons.auto_awesome),
+                      label: Text(_isSaving ? 'Kaydediliyor...' : 'Kombini Yenile'),
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
                     ),
                   ),
+                  
                   if (_message != null)
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Text(_message!, style: const TextStyle(color: Colors.red)),
                     ),
-                  const SizedBox(height: 24),
+                  
+                  const SizedBox(height: 30),
+                  
                   if (_currentOutfit != null) ...[
                     const Text(
-                      'Senin İçin Seçtiklerimiz',
+                      'Senin İçin Seçtiğimiz Kombin',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     _OutfitPreview(
                       top: _currentOutfit![0],
                       bottom: _currentOutfit![1],
@@ -150,54 +143,55 @@ class _OutfitPreview extends StatelessWidget {
   final Cloth bottom;
   final Cloth shoes;
 
-  const _OutfitPreview({required this.top, required this.bottom, required this.shoes});
+  const _OutfitPreview({
+    required this.top,
+    required this.bottom,
+    required this.shoes,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 220, // Belirli bir yükseklik verildi
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          _itemCard('Üst Giyim', top),
-          _itemCard('Alt Giyim', bottom),
-          _itemCard('Ayakkabı', shoes),
-        ],
-      ),
+    return Row(
+      children: [
+        Expanded(child: _itemCard('Üst', top)),
+        const SizedBox(width: 8),
+        Expanded(child: _itemCard('Alt', bottom)),
+        const SizedBox(width: 8),
+        Expanded(child: _itemCard('Ayakkabı', shoes)),
+      ],
     );
   }
 
   Widget _itemCard(String title, Cloth cloth) {
-    return Container(
-      width: 150,
-      margin: const EdgeInsets.only(right: 12),
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.indigo)),
-              const Divider(),
-              Expanded(
-                child: cloth.imagePath != null && cloth.imagePath!.isNotEmpty
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.file(
-                        File(cloth.imagePath!),
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                  : const Icon(Icons.inventory_2_outlined, size: 50, color: Colors.grey),
-              ),
-              const SizedBox(height: 8),
-              Text(cloth.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w500)),
-              Text(cloth.color ?? 'Renk Yok', style: const TextStyle(color: Colors.blueGrey, fontSize: 11)),
-            ],
-          ),
+    return Card(
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          children: [
+            Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+            const Divider(),
+            if (cloth.imagePath != null && cloth.imagePath!.isNotEmpty)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.file(
+                  File(cloth.imagePath!),
+                  height: 80,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              )
+            else
+              const Icon(Icons.image_not_supported, size: 40, color: Colors.grey),
+            const SizedBox(height: 8),
+            Text(
+              cloth.name, 
+              maxLines: 1, 
+              overflow: TextOverflow.ellipsis, 
+              style: const TextStyle(fontSize: 11),
+            ),
+          ],
         ),
       ),
     );
