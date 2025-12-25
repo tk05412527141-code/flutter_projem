@@ -22,7 +22,6 @@ class WeatherService {
       }
       return 20.0; // Hata durumunda güvenli varsayılan değer
     } catch (e) {
-      print('Hava durumu çekilemedi: $e');
       return 20.0; 
     }
   }
