@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_projem/features/home/presentation/providers/home_provider.dart';
 
 class HomePage extends ConsumerWidget {
+  const HomePage({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Veriyi dinle

@@ -101,6 +101,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
 
   if (!mounted) return;
 
+  // ignore: use_build_context_synchronously
   ScaffoldMessenger.of(context).showSnackBar(
     const SnackBar(content: Text("Dolaba eklendi ✅")),
   );
