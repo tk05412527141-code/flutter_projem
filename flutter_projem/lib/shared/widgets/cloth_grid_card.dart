@@ -72,6 +72,7 @@ class ClothGridCard extends StatelessWidget {
                           color: Colors.transparent,
                           child: DecoratedBox(
                             decoration: BoxDecoration(
+                              // ignore: deprecated_member_use
                               color: scheme.surface.withOpacity(0.85),
                               borderRadius: BorderRadius.circular(12),
                             ),

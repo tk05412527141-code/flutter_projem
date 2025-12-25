@@ -60,6 +60,7 @@ class AppScaffold extends StatelessWidget {
         decoration: BoxDecoration(
           color: scheme.surface,
           border: Border(
+            // ignore: deprecated_member_use
             top: BorderSide(color: scheme.outlineVariant.withOpacity(0.6)),
           ),
         ),
