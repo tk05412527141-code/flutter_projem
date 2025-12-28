@@ -159,6 +159,12 @@ class WardrobeRepository {
     return rows.map(Cloth.fromMap).toList();
   }
 
+  Future<List<Cloth>> getAllClothes() async {
+    final db = await database.database;
+    final rows = await db.query('clothes', orderBy: 'createdAt DESC');
+    return rows.map(Cloth.fromMap).toList();
+  }
+
   Future<Cloth?> getClothById(String id) async {
     final db = await database.database;
     final rows =
