@@ -1,10 +1,11 @@
+import 'package:flutter_projem/features/outfit/data/outfit_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/db/app_database.dart';
 import '../../../core/error/app_failure.dart';
 import '../../../core/models/cloth.dart';
-import '../../../core/result/result.dart';
+import 'outfit_repository.dart' show Result;
 
 class Outfit {
   Outfit({
@@ -72,6 +73,8 @@ class OutfitRepository {
   OutfitRepository({required this.database});
 
   final AppDatabase database;
+  
+  get Result => null;
 
   Future<Result<Outfit>> saveOutfit({
     required String userId,
@@ -183,4 +186,7 @@ class OutfitRepository {
       );
     }
   }
+}
+
+class Result {
 }

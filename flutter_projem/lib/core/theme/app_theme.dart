@@ -9,14 +9,15 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: scheme,
       scaffoldBackgroundColor: scheme.surface,
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 0,
         color: scheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: scheme.surfaceVariant.withOpacity(0.4),
+        // ignore: deprecated_member_use
+        fillColor: scheme.surfaceContainerHighest.withOpacity(0.4),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,

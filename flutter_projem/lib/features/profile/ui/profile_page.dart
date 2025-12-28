@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:flutter_projem/features/auth/data/auth_repository.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});

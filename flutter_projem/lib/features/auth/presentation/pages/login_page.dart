@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_projem/features/auth/ui/register_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/utils/validators.dart';
 import '../../data/auth_repository.dart';
-import 'register_page.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});

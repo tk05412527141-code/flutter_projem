@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 import '../../../core/db/app_database.dart';
 import '../../auth/data/auth_repository.dart';
 
+
 enum ClothCategory { top, bottom, shoes, outerwear, accessory }
 
 enum Season { summer, winter, all }
@@ -97,6 +98,10 @@ class Cloth {
         return 'accessory';
     }
   }
+
+  Null get isSuccess => null;
+
+  get data => null;
 }
 
 final wardrobeRepositoryProvider = Provider<WardrobeRepository>((ref) {

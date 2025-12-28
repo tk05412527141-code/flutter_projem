@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_projem/app.dart';
+import 'package:flutter_projem/features/outfit/presentation/pages/outfit_detail_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_strings.dart';
-import '../../../auth/presentation/providers/current_user_provider.dart';
-import '../../../shared/widgets/app_empty_state.dart';
-import '../../../shared/widgets/app_error_state.dart';
-import '../../../shared/widgets/app_loading_state.dart';
 import '../../../wardrobe/data/wardrobe_repository.dart';
-import '../providers/outfit_history_provider.dart';
-import 'outfit_detail_page.dart';
 
 class HistoryPage extends ConsumerWidget {
   const HistoryPage({super.key});
@@ -61,9 +57,9 @@ class HistoryPage extends ConsumerWidget {
                               await wardrobeRepo.getClothById(outfit.bottomClothId);
                           final shoesResult =
                               await wardrobeRepo.getClothById(outfit.shoeClothId);
-                          if (!topResult.isSuccess ||
-                              !bottomResult.isSuccess ||
-                              !shoesResult.isSuccess) {
+                          if (topResult == null || !topResult.isSuccess ||
+                              bottomResult == null || !bottomResult.isSuccess ||
+                              shoesResult == null || !shoesResult.isSuccess) {
                             return;
                           }
                           final top = topResult.data;
@@ -98,4 +94,72 @@ class HistoryPage extends ConsumerWidget {
               ),
     );
   }
+}
+
+final outfitHistoryProvider = FutureProvider.family<void, String>((ref, id) async {
+  // TODO: Implement outfit history provider logic
+});
+
+class AppEmptyState extends StatelessWidget {
+  final String title;
+  final String message;
+  final IconData icon;
+
+  const AppEmptyState({
+    super.key,
+    required this.title,
+    required this.message,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 64),
+          const SizedBox(height: 16),
+          Text(title),
+          const SizedBox(height: 8),
+          Text(message),
+        ],
+      ),
+    );
+  }
+}
+
+class AppErrorState extends StatelessWidget {
+  final String title;
+  final String message;
+  final VoidCallback onRetry;
+
+  const AppErrorState({super.key, 
+    required this.title,
+    required this.message,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(title),
+          const SizedBox(height: 8),
+          Text(message),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: onRetry,
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ignore: camel_case_types
+class z {
 }

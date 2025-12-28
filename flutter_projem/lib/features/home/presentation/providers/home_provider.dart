@@ -1,6 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_projem/features/home/data/models/user_model.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:dio/dio.dart';
 
 // API Servisi
 final apiClientProvider = Provider((ref) => Dio(BaseOptions(baseUrl: 'https://api.example.com')));

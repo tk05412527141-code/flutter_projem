@@ -1,4 +1,10 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:flutter_projem/features/auth/ui/register_page.dart';
+import 'package:flutter_projem/features/outfit/ui/history_page.dart';
+import 'package:flutter_projem/features/outfit/ui/outfit_page.dart';
+import 'package:flutter_projem/features/profile/ui/profile_page.dart';
+import 'package:flutter_projem/features/wardrobe/controller/wardrobe_controller.dart';
+import 'package:flutter_projem/features/wardrobe/ui/wardrobe_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -7,21 +13,11 @@ import 'core/constants/app_strings.dart';
 import 'core/error/app_failure.dart';
 import 'core/models/cloth.dart';
 import 'core/theme/app_theme.dart';
-
-import 'features/auth/presentation/pages/login_page.dart';
-import 'features/auth/presentation/pages/register_page.dart';
-import 'features/outfit/presentation/pages/history_page.dart';
-import 'features/outfit/presentation/pages/outfit_page.dart';
-import 'features/profile/presentation/pages/profile_page.dart';
-import 'features/wardrobe/presentation/controllers/wardrobe_controller.dart';
-import 'features/wardrobe/presentation/pages/wardrobe_page.dart';
-
-import 'shared/widgets/app_loading_state.dart';
-import 'shared/widgets/app_scaffold.dart';
-
 // Bu provider sende başka dosyada olabilir.
 // Aynı isimle zaten var dediğin için olduğu gibi bıraktım.
 import 'features/auth/data/auth_repository.dart';
+import 'features/auth/presentation/pages/login_page.dart';
+import 'shared/widgets/app_scaffold.dart';
 
 class App extends ConsumerWidget {
   const App({super.key});
@@ -54,6 +50,17 @@ class SplashPage extends ConsumerWidget {
       error: (error, _) => Scaffold(
         body: Center(child: Text('Hata: $error')),
       ),
+    );
+  }
+}
+
+class AppLoadingState extends StatelessWidget {
+  const AppLoadingState({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: CircularProgressIndicator(),
     );
   }
 }
@@ -107,16 +114,19 @@ class _HomeShellState extends ConsumerState<HomeShell> {
                       );
 
                   if (!mounted) return;
+                  // ignore: use_build_context_synchronously
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Dolaba eklendi ✅')),
                   );
                 } on AppFailure catch (failure) {
                   if (!mounted) return;
+                  // ignore: use_build_context_synchronously
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(failure.message)),
                   );
                 } catch (e) {
                   if (!mounted) return;
+                  // ignore: use_build_context_synchronously
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Beklenmeyen hata: $e')),
                   );

@@ -3,11 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../shared/widgets/cloth_grid_card.dart';
 import '../controller/wardrobe_controller.dart';
 import '../data/wardrobe_repository.dart';
 import 'add_cloth_page.dart';
 import 'cloth_detail_page.dart';
-import '../../../shared/widgets/cloth_grid_card.dart';
 
 /// Seçili kombin (liste index'leri) burada tutulur.
 /// Not: Şimdilik en basit hali: dolaptan 3 parça rastgele seçiyoruz.
