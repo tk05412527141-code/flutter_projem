@@ -2,18 +2,26 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'features/auth/data/auth_repository.dart';
-import 'features/auth/ui/login_page.dart';
-import 'features/auth/ui/register_page.dart';
-import 'features/wardrobe/ui/wardrobe_page.dart';
-import 'features/outfit/ui/outfit_page.dart';
-import 'features/outfit/ui/history_page.dart';
-import 'features/profile/ui/profile_page.dart';
+import 'core/constants/app_spacing.dart';
+import 'core/constants/app_strings.dart';
+import 'core/error/app_failure.dart';
+import 'core/models/cloth.dart';
+import 'core/theme/app_theme.dart';
+
+import 'features/auth/presentation/pages/login_page.dart';
+import 'features/auth/presentation/pages/register_page.dart';
+import 'features/outfit/presentation/pages/history_page.dart';
+import 'features/outfit/presentation/pages/outfit_page.dart';
+import 'features/profile/presentation/pages/profile_page.dart';
+import 'features/wardrobe/presentation/controllers/wardrobe_controller.dart';
+import 'features/wardrobe/presentation/pages/wardrobe_page.dart';
+
+import 'shared/widgets/app_loading_state.dart';
 import 'shared/widgets/app_scaffold.dart';
-import 'features/wardrobe/controller/wardrobe_controller.dart';
-import 'features/wardrobe/data/wardrobe_repository.dart';
 
-
+// Bu provider sende başka dosyada olabilir.
+// Aynı isimle zaten var dediğin için olduğu gibi bıraktım.
+import 'features/auth/data/auth_repository.dart';
 
 class App extends ConsumerWidget {
   const App({super.key});
@@ -22,11 +30,8 @@ class App extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Kombin Üretici',
-      theme: ThemeData(
-        useMaterial3: true,
-        colorSchemeSeed: Colors.teal,
-      ),
+      title: AppStrings.appTitle,
+      theme: AppTheme.lightTheme(),
       home: const SplashPage(),
       onGenerateRoute: onGenerateRoute,
     );
@@ -45,11 +50,9 @@ class SplashPage extends ConsumerWidget {
         if (user == null) return const LoginPage();
         return const HomeShell();
       },
-      loading: () => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
-      error: (e, _) => Scaffold(
-        body: Center(child: Text('Hata: $e')),
+      loading: () => const Scaffold(body: AppLoadingState()),
+      error: (error, _) => Scaffold(
+        body: Center(child: Text('Hata: $error')),
       ),
     );
   }
@@ -91,25 +94,36 @@ class _HomeShellState extends ConsumerState<HomeShell> {
 
                 if (!mounted) return;
 
-                if (pickedPath != null && pickedPath.isNotEmpty) {
-  await ref.read(wardrobeControllerProvider.notifier).addFromPickedImage(
-    pickedPath: pickedPath,
-    name: "Yeni Parça",
-    category: ClothCategory.top,
-    season: Season.all,
-  );
+                if (pickedPath == null || pickedPath.isEmpty) return;
 
-  if (!mounted) return;
+                try {
+                  await ref
+                      .read(wardrobeControllerProvider.notifier)
+                      .addFromPickedImage(
+                        pickedPath: pickedPath,
+                        name: 'Yeni Parça',
+                        category: ClothCategory.top,
+                        season: Season.all,
+                      );
 
-  // ignore: use_build_context_synchronously
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text("Dolaba eklendi ✅")),
-  );
-}
-
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Dolaba eklendi ✅')),
+                  );
+                } on AppFailure catch (failure) {
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(failure.message)),
+                  );
+                } catch (e) {
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Beklenmeyen hata: $e')),
+                  );
+                }
               },
               icon: const Icon(Icons.add_rounded),
-              label: const Text("Parça Ekle"),
+              label: const Text('Parça Ekle'),
             )
           : null,
 
@@ -151,40 +165,40 @@ class _AddItemSheet extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
-        16,
-        12,
-        16,
-        16 + MediaQuery.of(context).viewInsets.bottom,
+        AppSpacing.md,
+        AppSpacing.sm,
+        AppSpacing.md,
+        AppSpacing.md + MediaQuery.of(context).viewInsets.bottom,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            "Parça Ekle",
+            'Parça Ekle',
             style: Theme.of(context)
                 .textTheme
                 .titleMedium
                 ?.copyWith(fontWeight: FontWeight.w900),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.sm),
 
           FilledButton.icon(
             onPressed: () => _pick(context, ImageSource.gallery),
             icon: const Icon(Icons.photo_library_rounded),
-            label: const Text("Galeriden Seç"),
+            label: const Text('Galeriden Seç'),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpacing.sm),
 
           OutlinedButton.icon(
             onPressed: () => _pick(context, ImageSource.camera),
             icon: const Icon(Icons.photo_camera_rounded),
-            label: const Text("Kamera ile Çek"),
+            label: const Text('Kamera ile Çek'),
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.xs),
           Text(
-            "Fotoğraf seçince otomatik olarak dolaba ekleme adımına geçeceğiz.",
+            'Fotoğraf seçince otomatik olarak dolaba ekleme adımına geçeceğiz.',
             style: Theme.of(context)
                 .textTheme
                 .bodySmall

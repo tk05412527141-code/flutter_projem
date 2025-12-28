@@ -1,16 +1,67 @@
-# flutter_projem
+# Kombin Üretici
 
-A new Flutter project.
+Offline çalışan bir kıyafet dolabı ve akıllı kombin üretme uygulaması. Kullanıcılar kıyafetlerini ekleyebilir, dolaplarını yönetebilir ve mevsim/renk uyumu ile skorlanan kombin önerileri alabilir.
 
-## Getting Started
+## Özellikler
 
-This project is a starting point for a Flutter application.
+- **Dolap yönetimi**: Kıyafet ekleme, listeleme ve detay görüntüleme.
+- **Akıllı kombin üretme**: Mevsim ve renk uyumuna göre skorlanan kombin önerisi.
+- **Kombin geçmişi**: Üretilen kombinleri kaydetme ve görüntüleme.
+- **Offline kullanım**: Yerel SQLite veritabanı.
 
-A few resources to get you started if this is your first Flutter project:
+## Ekran Görüntüsü
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+> 📸 Buraya uygulama ekran görüntüsü ekleyin.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Kurulum
+
+```bash
+flutter pub get
+flutter run
+```
+
+## Mimari
+
+Proje, feature-first yapısıyla düzenlendi:
+
+```
+lib/
+  core/                # ortak theme, utils, result/failure
+  shared/              # ortak widgetlar
+  features/
+    wardrobe/
+      data/
+      domain/
+      presentation/
+    outfit/
+      data/
+      domain/
+      presentation/
+    auth/
+      data/
+      presentation/
+```
+
+- **Data layer**: SQLite erişimi ve repository implementasyonları.
+- **Domain layer**: Use-case ve iş kuralları (kombin üretimi gibi).
+- **Presentation layer**: Sayfalar, controller/provider’lar.
+
+## Testler
+
+```bash
+flutter test
+```
+
+## CI
+
+GitHub Actions ile aşağıdaki kontroller çalışır:
+
+- `flutter pub get`
+- `flutter analyze`
+- `flutter test`
+
+## Known Issues / Roadmap
+
+- Kombin üretme algoritmasının aksesuar ve dış giyim kategorilerini desteklemesi.
+- Kombin önerilerinde hava durumu entegrasyonu (offline veri ile).
+- Detaylı filtreleme ve arama.

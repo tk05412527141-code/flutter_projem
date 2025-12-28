@@ -2,7 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../core/db/app_database.dart';
-import '../../wardrobe/data/wardrobe_repository.dart';
+import '../../../core/error/app_failure.dart';
+import '../../../core/models/cloth.dart';
+import '../../../core/result/result.dart';
 
 class Outfit {
   Outfit({
@@ -34,6 +36,18 @@ class Outfit {
       createdAt: map['createdAt'] as int,
     );
   }
+
+  Map<String, Object?> toMap() {
+    return {
+      'id': id,
+      'userId': userId,
+      'topClothId': topClothId,
+      'bottomClothId': bottomClothId,
+      'shoeClothId': shoeClothId,
+      'seasonUsed': seasonUsed,
+      'createdAt': createdAt,
+    };
+  }
 }
 
 class OutfitWithClothes {
@@ -59,66 +73,114 @@ class OutfitRepository {
 
   final AppDatabase database;
 
-  Future<Outfit> saveOutfit({
+  Future<Result<Outfit>> saveOutfit({
     required String userId,
     required Cloth top,
     required Cloth bottom,
     required Cloth shoes,
     required String seasonUsed,
   }) async {
-    final db = await database.database;
-    final outfit = Outfit(
-      id: const Uuid().v4(),
-      userId: userId,
-      topClothId: top.id,
-      bottomClothId: bottom.id,
-      shoeClothId: shoes.id,
-      seasonUsed: seasonUsed,
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-    );
-    await db.insert('outfits', {
-      'id': outfit.id,
-      'userId': outfit.userId,
-      'topClothId': outfit.topClothId,
-      'bottomClothId': outfit.bottomClothId,
-      'shoeClothId': outfit.shoeClothId,
-      'seasonUsed': outfit.seasonUsed,
-      'createdAt': outfit.createdAt,
-    });
-    return outfit;
+    try {
+      final db = await database.database;
+
+      final outfit = Outfit(
+        id: const Uuid().v4(),
+        userId: userId,
+        topClothId: top.id,
+        bottomClothId: bottom.id,
+        shoeClothId: shoes.id,
+        seasonUsed: seasonUsed,
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+      );
+
+      await db.insert('outfits', outfit.toMap());
+      return Result.success(outfit);
+    } catch (error, stackTrace) {
+      return Result.error(
+        AppFailure(
+          message: 'Kombin kaydedilemedi.',
+          exception: error,
+          stackTrace: stackTrace,
+        ),
+      );
+    }
   }
 
-  Future<List<Outfit>> getOutfits(String userId) async {
-    final db = await database.database;
-    final rows = await db.query(
-      'outfits',
-      where: 'userId = ?',
-      whereArgs: [userId],
-      orderBy: 'createdAt DESC',
-    );
-    return rows.map(Outfit.fromMap).toList();
+  Future<Result<List<Outfit>>> getOutfits(String userId) async {
+    try {
+      final db = await database.database;
+      final rows = await db.query(
+        'outfits',
+        where: 'userId = ?',
+        whereArgs: [userId],
+        orderBy: 'createdAt DESC',
+      );
+      return Result.success(rows.map(Outfit.fromMap).toList());
+    } catch (error, stackTrace) {
+      return Result.error(
+        AppFailure(
+          message: 'Kombin geçmişi alınamadı.',
+          exception: error,
+          stackTrace: stackTrace,
+        ),
+      );
+    }
   }
 
-  Future<OutfitWithClothes?> getOutfitWithClothes(String id) async {
-    final db = await database.database;
-    final rows =
-        await db.query('outfits', where: 'id = ?', whereArgs: [id], limit: 1);
-    if (rows.isEmpty) return null;
-    final outfit = Outfit.fromMap(rows.first);
+  Future<Result<OutfitWithClothes?>> getOutfitWithClothes(String id) async {
+    try {
+      final db = await database.database;
 
-    final topRow = await db.query('clothes',
-        where: 'id = ?', whereArgs: [outfit.topClothId], limit: 1);
-    final bottomRow = await db.query('clothes',
-        where: 'id = ?', whereArgs: [outfit.bottomClothId], limit: 1);
-    final shoeRow = await db.query('clothes',
-        where: 'id = ?', whereArgs: [outfit.shoeClothId], limit: 1);
-    if (topRow.isEmpty || bottomRow.isEmpty || shoeRow.isEmpty) return null;
+      final outfitRows = await db.query(
+        'outfits',
+        where: 'id = ?',
+        whereArgs: [id],
+        limit: 1,
+      );
 
-    return OutfitWithClothes(
-      outfit: outfit,
-      top: Cloth.fromMap(topRow.first),
-      bottom: Cloth.fromMap(bottomRow.first),
-      shoes: Cloth.fromMap(shoeRow.first),
-    );
+      if (outfitRows.isEmpty) return Result.success(null);
+
+      final outfit = Outfit.fromMap(outfitRows.first);
+
+      final topRow = await db.query(
+        'clothes',
+        where: 'id = ?',
+        whereArgs: [outfit.topClothId],
+        limit: 1,
+      );
+      final bottomRow = await db.query(
+        'clothes',
+        where: 'id = ?',
+        whereArgs: [outfit.bottomClothId],
+        limit: 1,
+      );
+      final shoeRow = await db.query(
+        'clothes',
+        where: 'id = ?',
+        whereArgs: [outfit.shoeClothId],
+        limit: 1,
+      );
+
+      if (topRow.isEmpty || bottomRow.isEmpty || shoeRow.isEmpty) {
+        return Result.success(null);
+      }
+
+      return Result.success(
+        OutfitWithClothes(
+          outfit: outfit,
+          top: Cloth.fromMap(topRow.first),
+          bottom: Cloth.fromMap(bottomRow.first),
+          shoes: Cloth.fromMap(shoeRow.first),
+        ),
+      );
+    } catch (error, stackTrace) {
+      return Result.error(
+        AppFailure(
+          message: 'Kombin detayları alınamadı.',
+          exception: error,
+          stackTrace: stackTrace,
+        ),
+      );
+    }
   }
 }
